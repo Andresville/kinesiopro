@@ -1,0 +1,135 @@
+:root {
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f8f9fa;
+  --color-border-secondary: #d0d5dd;
+  --color-border-tertiary: #eaecf0;
+  --color-text-primary: #101828;
+  --color-text-secondary: #475467;
+  --border-radius-lg: 12px;
+  --border-radius-md: 8px;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); background-color: #f0f2f5; padding: 20px; }
+
+/* Estructura principal */
+.app-shell { 
+  display: grid; 
+  grid-template-columns: 220px 1fr; 
+  min-height: 85vh; 
+  border: 1px solid var(--color-border-tertiary); 
+  border-radius: var(--border-radius-lg); 
+  overflow: hidden; 
+  background: var(--color-background-primary); 
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar { background: var(--color-background-secondary); border-right: 1px solid var(--color-border-tertiary); padding: 20px 0; }
+.logo { padding: 0 20px 20px; border-bottom: 1px solid var(--color-border-tertiary); margin-bottom: 12px; }
+.logo-title { font-size: 18px; font-weight: 600; color: var(--color-text-primary); display: flex; align-items: center; gap: 8px; }
+.logo-sub { font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
+
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 12px 20px; font-size: 14px; color: var(--color-text-secondary); cursor: pointer; transition: background 0.15s; }
+.nav-item:hover { background: var(--color-background-primary); }
+.nav-item.active { background: var(--color-background-primary); color: #185FA5; border-left: 3px solid #185FA5; font-weight: 500; }
+
+.main { display: flex; flex-direction: column; background: var(--color-background-primary); }
+.topbar { display: flex; align-items: center; gap: 12px; padding: 16px 24px; border-bottom: 1px solid var(--color-border-tertiary); }
+.search-box { flex: 1; display: flex; align-items: center; gap: 8px; background: var(--color-background-secondary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px 14px; }
+.search-box input { border: none; background: transparent; font-size: 14px; color: var(--color-text-primary); outline: none; flex: 1; }
+
+/* Etiquetas (Tags) */
+.tag { font-size: 12px; padding: 4px 12px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
+.tag-blue { background: #E6F1FB; color: #0C447C; }
+.tag-teal { background: #E1F5EE; color: #085041; }
+.tag-amber { background: #FAEEDA; color: #633806; }
+.tag-purple { background: #EEEDFE; color: #3C3489; }
+
+/* Contenido */
+.content { padding: 24px; flex: 1; overflow-y: auto; }
+.section-title { font-size: 14px; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* Grilla y Tarjetas de Procedimientos */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.proc-card { background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px; cursor: pointer; transition: all 0.2s ease; }
+.proc-card:hover { border-color: var(--color-border-secondary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.proc-card.featured { border-color: #378ADD; }
+
+.proc-img { width: 100%; height: 100px; border-radius: var(--border-radius-md); margin-bottom: 12px; display: flex; align-items: center; justify-content: center; }
+.proc-img.blue { background: #E6F1FB; color: #185FA5; }
+.proc-img.teal { background: #E1F5EE; color: #0F6E56; }
+.proc-img.purple { background: #EEEDFE; color: #534AB7; }
+.proc-img.amber { background: #FAEEDA; color: #633806; }
+
+.proc-name { font-size: 14px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 4px; line-height: 1.3; }
+.proc-meta { font-size: 12px; color: var(--color-text-secondary); }
+
+/* Panel de Detalle */
+.detail-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+.detail-card { background: var(--color-background-secondary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 18px; }
+.detail-card-title { font-size: 15px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+/* Lista de pasos */
+.step-list { list-style: none; }
+.step-list li { font-size: 13px; color: var(--color-text-secondary); padding: 8px 0; border-bottom: 1px solid var(--color-border-tertiary); display: flex; gap: 10px; align-items: flex-start; line-height: 1.5; }
+.step-list li:last-child { border-bottom: none; }
+.step-num { font-size: 11px; font-weight: 600; background: #E6F1FB; color: #185FA5; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+
+/* Lista de contraindicaciones */
+.contra-list { list-style: none; }
+.contra-list li { font-size: 13px; color: #B42318; padding: 6px 0; display: flex; gap: 8px; align-items: flex-start; line-height: 1.4; }
+
+/* Enlace a fuente original */
+.source-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #185FA5; text-decoration: none; margin-top: 12px; font-weight: 500; transition: color 0.15s; }
+.source-link:hover { color: #0C447C; text-decoration: underline; }
+
+/* Modal Overlay y Contenedor */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(16, 24, 40, 0.6);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: var(--color-background-primary);
+  border-radius: var(--border-radius-lg);
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  padding: 32px;
+}
+
+/* Botón de cierre (X) */
+.modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  background: var(--color-border-tertiary);
+  color: var(--color-text-primary);
+}
