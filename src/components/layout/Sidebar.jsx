@@ -9,7 +9,7 @@ import {
   IconSettings 
 } from '@tabler/icons-react';
 
-export default function Sidebar() {
+export default function Sidebar({ activeView, setActiveView }) {
   return (
     <div className="sidebar">
       <div className="logo">
@@ -20,12 +20,23 @@ export default function Sidebar() {
         <div className="logo-sub">Plataforma clínica</div>
       </div>
       
-      <div className="nav-item active">
+      {/* Botón Procedimientos */}
+      <div 
+        className={`nav-item ${activeView === 'procedures' ? 'active' : ''}`}
+        onClick={() => setActiveView('procedures')}
+      >
         <IconLayoutGrid size={20} /> Procedimientos
       </div>
-      <div className="nav-item">
+      
+      {/* Botón Anatomía 3D */}
+      <div 
+        className={`nav-item ${activeView === 'anatomy' ? 'active' : ''}`}
+        onClick={() => setActiveView('anatomy')}
+      >
         <IconBodyScan size={20} /> Anatomía 3D
       </div>
+      
+      {/* Los siguientes módulos los dejamos inactivos por ahora */}
       <div className="nav-item">
         <IconClipboardList size={20} /> Protocolos
       </div>

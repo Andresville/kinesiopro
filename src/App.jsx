@@ -3,6 +3,7 @@ import { supabase } from './services/supabase';
 import MainLayout from './components/layout/MainLayout';
 import ProcedureCard from './components/procedures/ProcedureCard';
 import DetailPanel from './components/procedures/DetailPanel';
+import AnatomyViewer from './components/procedures/AnatomyViewer';
 
 function App() {
   const [procedures, setProcedures] = useState([]);
@@ -12,6 +13,8 @@ function App() {
   // Nuevos estados para los filtros
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState(null);
+
+  const [activeView, setActiveView] = useState('procedures');
 
   useEffect(() => {
     async function fetchProcedures() {
@@ -47,40 +50,44 @@ function App() {
   });
 
   return (
-    // Pasamos los estados y funciones hacia abajo
     <MainLayout 
       searchTerm={searchTerm} 
       setSearchTerm={setSearchTerm}
       selectedFilter={selectedFilter}
       setSelectedFilter={setSelectedFilter}
+      activeView={activeView}          // Pasa el estado actual
+      setActiveView={setActiveView}    // Pasa la función para cambiarlo
     >
-      <div className="section-title">Biblioteca de Procedimientos</div>
-      
-      {loading ? (
-        <p style={{ color: 'var(--color-text-secondary)' }}>Cargando base clínica...</p>
-      ) : (
-        <div className="card-grid">
-          {/* Mapeamos el array filtrado en lugar del original */}
-          {filteredProcedures.length > 0 ? (
-            filteredProcedures.map((proc) => (
-              <ProcedureCard 
-                key={proc.id} 
-                procedure={proc} 
-                onClick={handleCardClick} 
-              />
-            ))
-          ) : (
-            <p style={{ color: 'var(--color-text-secondary)', gridColumn: '1 / -1' }}>
-              No se encontraron procedimientos con esos filtros.
-            </p>
-          )}
-        </div>
-      )}
+      {/* ELIMINAMOS EL DIV DE LOS BOTONES TEMPORALES AQUÍ */}
 
-      <DetailPanel 
-        procedure={selectedProcedure} 
-        onClose={() => setSelectedProcedure(null)} 
-      />
+      {/* RENDERIZADO CONDICIONAL */}
+      {activeView === 'procedures' ? (
+        <>
+          <div className="section-title">Biblioteca de Procedimientos</div>
+          {loading ? (
+            <p style={{ color: 'var(--color-text-secondary)' }}>Cargando base clínica...</p>
+          ) : (
+            <div className="card-grid">
+              {filteredProcedures.length > 0 ? (
+                filteredProcedures.map((proc) => (
+                  <ProcedureCard key={proc.id} procedure={proc} onClick={handleCardClick} />
+                ))
+              ) : (
+                <p style={{ color: 'var(--color-text-secondary)', gridColumn: '1 / -1' }}>No se encontraron procedimientos con esos filtros.</p>
+              )}
+            </div>
+          )}
+          <DetailPanel procedure={selectedProcedure} onClose={() => setSelectedProcedure(null)} />
+        </>
+      ) : (
+        <>
+          <div className="section-title">Visor Anatómico Interactivo</div>
+          <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginBottom: '16px' }}>
+            Interactúa con el modelo usando el mouse o gestos táctiles para rotar y hacer zoom.
+          </p>
+          <AnatomyViewer />
+        </>
+      )}
     </MainLayout>
   );
 }
