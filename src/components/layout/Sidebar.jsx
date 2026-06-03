@@ -36,10 +36,15 @@ export default function Sidebar({ activeView, setActiveView }) {
         <IconBodyScan size={20} /> Anatomía 3D
       </div>
       
-      {/* Los siguientes módulos los dejamos inactivos por ahora */}
-      <div className="nav-item">
+      {/* Botón Protocolos */}
+      <div 
+        className={`nav-item ${activeView === 'protocols' ? 'active' : ''}`}
+        onClick={() => setActiveView('protocols')}
+      >
         <IconClipboardList size={20} /> Protocolos
       </div>
+
+      {/* Los siguientes módulos los dejamos inactivos por ahora */}
       <div className="nav-item">
         <IconVideo size={20} /> Video guías
       </div>

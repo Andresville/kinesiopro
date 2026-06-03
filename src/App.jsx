@@ -4,6 +4,7 @@ import MainLayout from './components/layout/MainLayout';
 import ProcedureCard from './components/procedures/ProcedureCard';
 import DetailPanel from './components/procedures/DetailPanel';
 import AnatomyViewer from './components/procedures/AnatomyViewer';
+import ProtocolsView from './components/protocols/ProtocolsView';
 
 function App() {
   const [procedures, setProcedures] = useState([]);
@@ -61,7 +62,7 @@ function App() {
       {/* ELIMINAMOS EL DIV DE LOS BOTONES TEMPORALES AQUÍ */}
 
       {/* RENDERIZADO CONDICIONAL */}
-      {activeView === 'procedures' ? (
+      {activeView === 'procedures' && (
         <>
           <div className="section-title">Biblioteca de Procedimientos</div>
           {loading ? (
@@ -73,13 +74,17 @@ function App() {
                   <ProcedureCard key={proc.id} procedure={proc} onClick={handleCardClick} />
                 ))
               ) : (
-                <p style={{ color: 'var(--color-text-secondary)', gridColumn: '1 / -1' }}>No se encontraron procedimientos con esos filtros.</p>
+                <p style={{ color: 'var(--color-text-secondary)', gridColumn: '1 / -1' }}>
+                  No se encontraron procedimientos con esos filtros.
+                </p>
               )}
             </div>
           )}
           <DetailPanel procedure={selectedProcedure} onClose={() => setSelectedProcedure(null)} />
         </>
-      ) : (
+      )}
+
+      {activeView === 'anatomy' && (
         <>
           <div className="section-title">Visor Anatómico Interactivo</div>
           <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginBottom: '16px' }}>
@@ -87,6 +92,10 @@ function App() {
           </p>
           <AnatomyViewer />
         </>
+      )}
+
+      {activeView === 'protocols' && (
+        <ProtocolsView />
       )}
     </MainLayout>
   );
