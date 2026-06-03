@@ -1,12 +1,19 @@
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 
-export default function MainLayout({ children }) {
+// Recibimos las props destructuradas
+export default function MainLayout({ children, searchTerm, setSearchTerm, selectedFilter, setSelectedFilter }) {
   return (
     <div className="app-shell">
       <Sidebar />
       <div className="main">
-        <Topbar />
+        {/* Le pasamos las props al Topbar */}
+        <Topbar 
+          searchTerm={searchTerm} 
+          setSearchTerm={setSearchTerm}
+          selectedFilter={selectedFilter}
+          setSelectedFilter={setSelectedFilter}
+        />
         <div className="content">
           {children}
         </div>
