@@ -6,7 +6,7 @@ export default function DetailPanel({ procedure, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       {/* e.stopPropagation() evita que al hacer clic dentro de la tarjeta se cierre el modal */}
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ backgroundColor: '#e0e2dd' }}>
         
         {/* Botón de Cerrar */}
         <button className="modal-close" onClick={onClose} aria-label="Cerrar modal">

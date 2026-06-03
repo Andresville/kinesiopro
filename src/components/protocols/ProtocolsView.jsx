@@ -64,7 +64,7 @@ export default function ProtocolsView() {
           <div 
             className="modal-content" 
             onClick={(e) => e.stopPropagation()} 
-            style={{ backgroundColor: '#ffffff' }} // Forzamos el fondo blanco brillante
+            style={{ backgroundColor: '#e0e2dd' }}
           >
             
             <button className="modal-close" onClick={() => setSelectedProtocol(null)}>
