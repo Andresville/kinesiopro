@@ -5,8 +5,6 @@ export default function MainLayout({
   children, 
   searchTerm, 
   setSearchTerm, 
-  selectedFilter, 
-  setSelectedFilter,
   activeView,      
   setActiveView   
 }) {
@@ -19,8 +17,6 @@ export default function MainLayout({
         <Topbar 
           searchTerm={searchTerm} 
           setSearchTerm={setSearchTerm}
-          selectedFilter={selectedFilter}
-          setSelectedFilter={setSelectedFilter}
         />
         <div className="content">
           {children}

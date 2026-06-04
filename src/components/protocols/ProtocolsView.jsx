@@ -2,45 +2,26 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../services/supabase';
 import { IconClock, IconStretching, IconX, IconClipboardList } from '@tabler/icons-react';
 
-export default function ProtocolsView({ searchTerm = "", selectedFilter = null }) {
+export default function ProtocolsView({ searchTerm = "" }) {
   const [protocols, setProtocols] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedProtocol, setSelectedProtocol] = useState(null);
 
-  // Traer los datos de Supabase
   useEffect(() => {
     async function fetchProtocols() {
       const { data, error } = await supabase.from('protocols').select('*');
-      
-      if (error) {
-        console.error("Error de Supabase:", error);
-      } else {
-        console.log("Datos recibidos:", data);
-        setProtocols(data);
-      }
-      
+      if (!error) setProtocols(data);
       setLoading(false);
     }
     fetchProtocols();
   }, []);
 
-  // LÓGICA DE FILTRADO
   const filteredProtocols = protocols.filter((protocol) => {
     const term = searchTerm.toLowerCase();
-    const matchesSearch = 
+    return (
       (protocol.title && protocol.title.toLowerCase().includes(term)) ||
-      (protocol.category && protocol.category.toLowerCase().includes(term));
-    
-    let matchesFilter = true;
-    if (selectedFilter) {
-      // Buscamos en categoría o título para que coincida con las pastillas
-      const filterLower = selectedFilter.toLowerCase();
-      matchesFilter = 
-        (protocol.category && protocol.category.toLowerCase().includes(filterLower)) ||
-        (protocol.title && protocol.title.toLowerCase().includes(filterLower));
-    }
-
-    return matchesSearch && matchesFilter;
+      (protocol.category && protocol.category.toLowerCase().includes(term))
+    );
   });
 
   return (
@@ -82,12 +63,7 @@ export default function ProtocolsView({ searchTerm = "", selectedFilter = null }
 
       {selectedProtocol && (
         <div className="modal-overlay" onClick={() => setSelectedProtocol(null)}>
-          <div 
-            className="modal-content" 
-            onClick={(e) => e.stopPropagation()} 
-            style={{ backgroundColor: '#e0e2dd' }}
-          >
-            
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ backgroundColor: '#e0e2dd' }}>
             <button className="modal-close" onClick={() => setSelectedProtocol(null)}>
               <IconX size={24} />
             </button>
@@ -122,7 +98,6 @@ export default function ProtocolsView({ searchTerm = "", selectedFilter = null }
                     <div className="phase-duration" style={{ color: '#475467', marginBottom: '8px' }}>
                       {phase.duration}
                     </div>
-
                     <div className="phase-content" style={{ backgroundColor: '#ffffff', border: '1px solid var(--color-border-tertiary)' }}>
                       <strong>Objetivos y acciones:</strong> <br/>
                       <span style={{ color: 'var(--color-text-secondary)', marginTop: '4px', display: 'block' }}>
@@ -133,10 +108,10 @@ export default function ProtocolsView({ searchTerm = "", selectedFilter = null }
                 ))}
               </div>
             </div>
-
           </div>
         </div>
       )}
     </div>
   );
 }
+

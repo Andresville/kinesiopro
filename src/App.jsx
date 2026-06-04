@@ -13,7 +13,6 @@ function App() {
   const [selectedProcedure, setSelectedProcedure] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState(null);
 
   const [activeView, setActiveView] = useState("procedures");
   const [crossLinkedVideo, setCrossLinkedVideo] = useState(null);
@@ -34,24 +33,13 @@ function App() {
   };
 
   const filteredProcedures = procedures.filter((proc) => {
-    const matchesSearch =
-      proc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      proc.region.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      proc.category.toLowerCase().includes(searchTerm.toLowerCase());
+    const term = searchTerm.toLowerCase();
 
-    let matchesFilter = true;
-    if (selectedFilter === "Columna")
-      matchesFilter = proc.region.includes("Columna");
-    if (selectedFilter === "Hombro")
-      matchesFilter = proc.region.includes("Hombro");
-    if (selectedFilter === "Rodilla")
-      matchesFilter = proc.region.includes("Rodilla");
-    if (selectedFilter === "Neurológico")
-      matchesFilter =
-        proc.region.includes("Sistema Nervioso") ||
-        proc.category.includes("Neuro");
-
-    return matchesSearch && matchesFilter;
+    return (
+      (proc.title && proc.title.toLowerCase().includes(term)) ||
+      (proc.region && proc.region.toLowerCase().includes(term)) ||
+      (proc.category && proc.category.toLowerCase().includes(term))
+    );
   });
 
   const handleGoToVideo = (procedure) => {
@@ -64,8 +52,6 @@ function App() {
     <MainLayout
       searchTerm={searchTerm}
       setSearchTerm={setSearchTerm}
-      selectedFilter={selectedFilter}
-      setSelectedFilter={setSelectedFilter}
       activeView={activeView} 
       setActiveView={setActiveView} 
     >
@@ -93,7 +79,7 @@ function App() {
                     gridColumn: "1 / -1",
                   }}
                 >
-                  No se encontraron procedimientos con esos filtros.
+                  No se encontraron procedimientos con esos parámetros.
                 </p>
               )}
             </div>
@@ -124,10 +110,7 @@ function App() {
       )}
 
       {activeView === "protocols" && (
-        <ProtocolsView 
-          searchTerm={searchTerm} 
-          selectedFilter={selectedFilter} 
-        />
+        <ProtocolsView searchTerm={searchTerm} />
       )}
       
       {activeView === "videos" && (
@@ -135,7 +118,6 @@ function App() {
           externalSelectedVideo={crossLinkedVideo}
           setExternalSelectedVideo={setCrossLinkedVideo}
           searchTerm={searchTerm} 
-          selectedFilter={selectedFilter}
         />
       )}
     </MainLayout>
@@ -143,3 +125,4 @@ function App() {
 }
 
 export default App;
+

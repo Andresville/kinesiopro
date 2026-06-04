@@ -5,8 +5,7 @@ import { IconPlayerPlayFilled, IconAlertTriangle, IconVolume, IconX } from '@tab
 export default function VideoGuidesView({ 
   externalSelectedVideo, 
   setExternalSelectedVideo,
-  searchTerm = "", 
-  selectedFilter = null 
+  searchTerm = "" 
 }) {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,24 +33,11 @@ export default function VideoGuidesView({
 
   const filteredVideos = videos.filter((vid) => {
     const term = searchTerm.toLowerCase();
-    const matchesSearch = 
+    return (
       (vid.title && vid.title.toLowerCase().includes(term)) || 
       (vid.region && vid.region.toLowerCase().includes(term)) ||
-      (vid.category && vid.category.toLowerCase().includes(term));
-    
-    let matchesFilter = true;
-    if (selectedFilter === "Columna")
-      matchesFilter = vid.region && vid.region.includes("Columna");
-    if (selectedFilter === "Hombro")
-      matchesFilter = vid.region && vid.region.includes("Hombro");
-    if (selectedFilter === "Rodilla")
-      matchesFilter = vid.region && vid.region.includes("Rodilla");
-    if (selectedFilter === "Neurológico")
-      matchesFilter =
-        (vid.region && vid.region.includes("Sistema Nervioso")) ||
-        (vid.category && vid.category.includes("Neuro"));
-
-    return matchesSearch && matchesFilter;
+      (vid.category && vid.category.toLowerCase().includes(term))
+    );
   });
 
   return (
