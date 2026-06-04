@@ -1,13 +1,13 @@
-import { 
-  IconActivityHeartbeat, 
-  IconLayoutGrid, 
-  IconBodyScan, 
-  IconClipboardList, 
-  IconVideo, 
-  IconUsers, 
-  IconBook, 
-  IconSettings 
-} from '@tabler/icons-react';
+import {
+  IconActivityHeartbeat,
+  IconLayoutGrid,
+  IconBodyScan,
+  IconClipboardList,
+  IconVideo,
+  IconUsers,
+  IconBook,
+  IconSettings,
+} from "@tabler/icons-react";
 
 export default function Sidebar({ activeView, setActiveView }) {
   return (
@@ -19,35 +19,39 @@ export default function Sidebar({ activeView, setActiveView }) {
         </div>
         <div className="logo-sub">Plataforma clínica</div>
       </div>
-      
+
       {/* Botón Procedimientos */}
-      <div 
-        className={`nav-item ${activeView === 'procedures' ? 'active' : ''}`}
-        onClick={() => setActiveView('procedures')}
+      <div
+        className={`nav-item ${activeView === "procedures" ? "active" : ""}`}
+        onClick={() => setActiveView("procedures")}
       >
         <IconLayoutGrid size={20} /> Procedimientos
       </div>
-      
+
       {/* Botón Anatomía 3D */}
-      <div 
-        className={`nav-item ${activeView === 'anatomy' ? 'active' : ''}`}
-        onClick={() => setActiveView('anatomy')}
+      <div
+        className={`nav-item ${activeView === "anatomy" ? "active" : ""}`}
+        onClick={() => setActiveView("anatomy")}
       >
         <IconBodyScan size={20} /> Anatomía 3D
       </div>
-      
+
       {/* Botón Protocolos */}
-      <div 
-        className={`nav-item ${activeView === 'protocols' ? 'active' : ''}`}
-        onClick={() => setActiveView('protocols')}
+      <div
+        className={`nav-item ${activeView === "protocols" ? "active" : ""}`}
+        onClick={() => setActiveView("protocols")}
       >
         <IconClipboardList size={20} /> Protocolos
       </div>
 
-      {/* Los siguientes módulos los dejamos inactivos por ahora */}
-      <div className="nav-item">
+      <div
+        className={`nav-item ${activeView === "videos" ? "active" : ""}`}
+        onClick={() => setActiveView("videos")}
+      >
         <IconVideo size={20} /> Video guías
       </div>
+
+      {/* Los siguientes módulos los dejamos inactivos por ahora */}
       <div className="nav-item">
         <IconUsers size={20} /> Pacientes
       </div>

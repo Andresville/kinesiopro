@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../services/supabase';
 import { IconClock, IconStretching, IconX, IconClipboardList } from '@tabler/icons-react';
 
-export default function ProtocolsView() {
+export default function ProtocolsView({ searchTerm = "", selectedFilter = null }) {
   const [protocols, setProtocols] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedProtocol, setSelectedProtocol] = useState(null);
@@ -24,6 +24,25 @@ export default function ProtocolsView() {
     fetchProtocols();
   }, []);
 
+  // LÓGICA DE FILTRADO
+  const filteredProtocols = protocols.filter((protocol) => {
+    const term = searchTerm.toLowerCase();
+    const matchesSearch = 
+      (protocol.title && protocol.title.toLowerCase().includes(term)) ||
+      (protocol.category && protocol.category.toLowerCase().includes(term));
+    
+    let matchesFilter = true;
+    if (selectedFilter) {
+      // Buscamos en categoría o título para que coincida con las pastillas
+      const filterLower = selectedFilter.toLowerCase();
+      matchesFilter = 
+        (protocol.category && protocol.category.toLowerCase().includes(filterLower)) ||
+        (protocol.title && protocol.title.toLowerCase().includes(filterLower));
+    }
+
+    return matchesSearch && matchesFilter;
+  });
+
   return (
     <div>
       <div className="section-title">Protocolos Clínicos Estándar</div>
@@ -31,34 +50,36 @@ export default function ProtocolsView() {
         Planes de tratamiento estructurados por fases para patologías frecuentes.
       </p>
 
-      {/* 1. GRILLA DE TARJETAS */}
       {loading ? (
         <p style={{ color: 'var(--color-text-secondary)' }}>Cargando protocolos...</p>
       ) : (
         <div className="card-grid">
-          {protocols.map((protocol) => (
-            <div 
-              key={protocol.id} 
-              className="proc-card" 
-              onClick={() => setSelectedProtocol(protocol)}
-            >
-              <div className="proc-img" style={{ background: '#EEEDFE', color: '#3C3489' }}>
-                <IconClipboardList size={40} />
+          {filteredProtocols.length > 0 ? (
+            filteredProtocols.map((protocol) => (
+              <div 
+                key={protocol.id} 
+                className="proc-card" 
+                onClick={() => setSelectedProtocol(protocol)}
+              >
+                <div className="proc-img" style={{ background: '#EEEDFE', color: '#3C3489' }}>
+                  <IconClipboardList size={40} />
+                </div>
+                <div className="proc-name">{protocol.title}</div>
+                <div className="proc-meta" style={{ marginBottom: '8px' }}>
+                  {protocol.author}
+                </div>
+                <span className="tag tag-purple">
+                  <IconClock size={12} style={{ marginRight: '4px', display: 'inline' }}/> 
+                  {protocol.estimated_time}
+                </span>
               </div>
-              <div className="proc-name">{protocol.title}</div>
-              <div className="proc-meta" style={{ marginBottom: '8px' }}>
-                {protocol.author}
-              </div>
-              <span className="tag tag-purple">
-                <IconClock size={12} style={{ marginRight: '4px', display: 'inline' }}/> 
-                {protocol.estimated_time}
-              </span>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p style={{ color: 'var(--color-text-secondary)', gridColumn: '1 / -1' }}>No se encontraron protocolos con esos filtros.</p>
+          )}
         </div>
       )}
 
-      {/* 2. MODAL CON LA LÍNEA DE TIEMPO (Solo se muestra si hay un protocolo seleccionado) */}
       {selectedProtocol && (
         <div className="modal-overlay" onClick={() => setSelectedProtocol(null)}>
           <div 
@@ -71,12 +92,10 @@ export default function ProtocolsView() {
               <IconX size={24} />
             </button>
 
-            {/* Título unificado con el estilo de Procedimientos */}
             <div className="section-title" style={{ marginTop: '0', fontSize: '18px' }}>
               {selectedProtocol.title}
             </div>
 
-            {/* Metadatos ordenados como etiquetas */}
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px', marginTop: '12px' }}>
               <span className="tag tag-blue">{selectedProtocol.category}</span>
               <span className="tag" style={{ background: '#f8f9fa', color: '#475467', border: '1px solid #eaecf0' }}>
@@ -89,7 +108,6 @@ export default function ProtocolsView() {
               </span>
             </div>
 
-            {/* Contenedor tipo "Tarjeta" para la línea de tiempo */}
             <div className="detail-card">
               <div className="detail-card-title">
                 <IconClipboardList color="#185FA5" size={20} /> 
@@ -104,7 +122,7 @@ export default function ProtocolsView() {
                     <div className="phase-duration" style={{ color: '#475467', marginBottom: '8px' }}>
                       {phase.duration}
                     </div>
-                    {/* Caja de contenido con fondo blanco para máximo contraste */}
+
                     <div className="phase-content" style={{ backgroundColor: '#ffffff', border: '1px solid var(--color-border-tertiary)' }}>
                       <strong>Objetivos y acciones:</strong> <br/>
                       <span style={{ color: 'var(--color-text-secondary)', marginTop: '4px', display: 'block' }}>
