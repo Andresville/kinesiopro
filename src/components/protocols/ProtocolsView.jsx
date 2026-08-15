@@ -1,106 +1,96 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '../../services/supabase';
+import { useMemo, useState } from 'react';
+import { filterBySearch } from '../../lib/search';
 import { IconClock, IconStretching, IconX, IconClipboardList } from '@tabler/icons-react';
 
-export default function ProtocolsView({ searchTerm = "" }) {
-  const [protocols, setProtocols] = useState([]);
-  const [loading, setLoading] = useState(true);
+const PROTOCOL_SEARCH_FIELDS = ['title', 'category'];
+
+export default function ProtocolsView({ protocols, loading, error, searchTerm = "" }) {
   const [selectedProtocol, setSelectedProtocol] = useState(null);
 
-  useEffect(() => {
-    async function fetchProtocols() {
-      const { data, error } = await supabase.from('protocols').select('*');
-      if (!error) setProtocols(data);
-      setLoading(false);
-    }
-    fetchProtocols();
-  }, []);
-
-  const filteredProtocols = protocols.filter((protocol) => {
-    const term = searchTerm.toLowerCase();
-    return (
-      (protocol.title && protocol.title.toLowerCase().includes(term)) ||
-      (protocol.category && protocol.category.toLowerCase().includes(term))
-    );
-  });
+  const filteredProtocols = useMemo(
+    () => filterBySearch(protocols, searchTerm, PROTOCOL_SEARCH_FIELDS),
+    [protocols, searchTerm]
+  );
 
   return (
     <div>
       <div className="section-title">Protocolos Clínicos Estándar</div>
-      <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginBottom: '24px' }}>
+      <p className="section-subtitle">
         Planes de tratamiento estructurados por fases para patologías frecuentes.
       </p>
 
       {loading ? (
-        <p style={{ color: 'var(--color-text-secondary)' }}>Cargando protocolos...</p>
+        <p className="loading-text">Cargando protocolos...</p>
+      ) : error ? (
+        <p className="error-state">No se pudieron cargar los protocolos. Intentá de nuevo más tarde.</p>
       ) : (
         <div className="card-grid">
           {filteredProtocols.length > 0 ? (
             filteredProtocols.map((protocol) => (
-              <div 
-                key={protocol.id} 
-                className="proc-card" 
+              <div
+                key={protocol.id}
+                className="proc-card"
                 onClick={() => setSelectedProtocol(protocol)}
               >
-                <div className="proc-img" style={{ background: '#EEEDFE', color: '#3C3489' }}>
+                <div className="proc-img purple">
                   <IconClipboardList size={40} />
                 </div>
                 <div className="proc-name">{protocol.title}</div>
-                <div className="proc-meta" style={{ marginBottom: '8px' }}>
+                <div className="proc-meta">
                   {protocol.author}
                 </div>
                 <span className="tag tag-purple">
-                  <IconClock size={12} style={{ marginRight: '4px', display: 'inline' }}/> 
+                  <IconClock size={12} className="tag-icon"/>
                   {protocol.estimated_time}
                 </span>
               </div>
             ))
           ) : (
-            <p style={{ color: 'var(--color-text-secondary)', gridColumn: '1 / -1' }}>No se encontraron protocolos con esos filtros.</p>
+            <p className="empty-state">No se encontraron protocolos con esos filtros.</p>
           )}
         </div>
       )}
 
       {selectedProtocol && (
         <div className="modal-overlay" onClick={() => setSelectedProtocol(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ backgroundColor: '#e0e2dd' }}>
+          <div className="modal-content modal-content--muted" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setSelectedProtocol(null)}>
               <IconX size={24} />
             </button>
 
-            <div className="section-title" style={{ marginTop: '0', fontSize: '18px' }}>
+            <div className="section-title modal-title">
               {selectedProtocol.title}
             </div>
 
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px', marginTop: '12px' }}>
+            <div className="protocol-tags">
               <span className="tag tag-blue">{selectedProtocol.category}</span>
-              <span className="tag" style={{ background: '#f8f9fa', color: '#475467', border: '1px solid #eaecf0' }}>
-                <IconStretching size={14} style={{ marginRight: '4px', verticalAlign: 'text-bottom' }}/> 
+              <span className="tag tag-neutral">
+                <IconStretching size={14} className="tag-icon"/>
                 {selectedProtocol.author}
               </span>
-              <span className="tag" style={{ background: '#f8f9fa', color: '#475467', border: '1px solid #eaecf0' }}>
-                <IconClock size={14} style={{ marginRight: '4px', verticalAlign: 'text-bottom' }}/> 
+              <span className="tag tag-neutral">
+                <IconClock size={14} className="tag-icon"/>
                 {selectedProtocol.estimated_time}
               </span>
             </div>
 
             <div className="detail-card">
-              <div className="detail-card-title">
-                <IconClipboardList color="#185FA5" size={20} /> 
+              <div className="detail-card-title detail-card-title--accent">
+                <IconClipboardList color="#185FA5" size={20} />
                 Fases de Rehabilitación
               </div>
-              
-              <div className="timeline" style={{ marginTop: '16px' }}>
-                {selectedProtocol.phases.map((phase, index) => (
+
+              <div className="timeline">
+                {(selectedProtocol.phases ?? []).map((phase, index) => (
                   <div key={index} className="phase-item">
-                    <div className="phase-dot" style={{ top: '2px' }}></div>
-                    <div className="phase-title" style={{ fontSize: '15px' }}>{phase.name}</div>
-                    <div className="phase-duration" style={{ color: '#475467', marginBottom: '8px' }}>
+                    <div className="phase-dot"></div>
+                    <div className="phase-title">{phase.name}</div>
+                    <div className="phase-duration">
                       {phase.duration}
                     </div>
-                    <div className="phase-content" style={{ backgroundColor: '#ffffff', border: '1px solid var(--color-border-tertiary)' }}>
+                    <div className="phase-content">
                       <strong>Objetivos y acciones:</strong> <br/>
-                      <span style={{ color: 'var(--color-text-secondary)', marginTop: '4px', display: 'block' }}>
+                      <span className="phase-goals">
                         {phase.goals}
                       </span>
                     </div>

@@ -2,7 +2,7 @@ import { IconStethoscope, IconBone, IconMassage, IconActivity } from '@tabler/ic
 
 export default function ProcedureCard({ procedure, onClick }) {
 
-  const getTheme = (category) => {
+  const getTheme = (category = '') => {
     if (category.includes('Terapia Manual')) return { color: 'blue', icon: <IconBone size={40} /> };
     if (category.includes('Ejercicio')) return { color: 'teal', icon: <IconActivity size={40} /> };
     if (category.includes('Neurodinamia')) return { color: 'purple', icon: <IconStethoscope size={40} /> };
@@ -17,12 +17,12 @@ export default function ProcedureCard({ procedure, onClick }) {
         {theme.icon}
       </div>
       <div className="proc-name">{procedure.title}</div>
-      <div className="proc-meta" style={{ marginBottom: '8px' }}>
+      <div className="proc-meta">
         {procedure.region} · {procedure.category}
       </div>
 
       <span className={`tag tag-${theme.color}`}>
-        Evidencia: {procedure.evidence_level.split(' ')[0]}
+        Evidencia: {procedure.evidence_level?.split(' ')[0] ?? 'N/D'}
       </span>
     </div>
   );

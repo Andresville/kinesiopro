@@ -1,117 +1,110 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '../../services/supabase';
+import { useMemo, useState } from 'react';
+import { filterBySearch } from '../../lib/search';
 import { IconPlayerPlayFilled, IconAlertTriangle, IconVolume, IconX } from '@tabler/icons-react';
 
-export default function VideoGuidesView({ 
-  externalSelectedVideo, 
+const VIDEO_SEARCH_FIELDS = ['title', 'region', 'category'];
+
+export default function VideoGuidesView({
+  procedures,
+  loading,
+  error,
+  externalSelectedVideo,
   setExternalSelectedVideo,
-  searchTerm = "" 
+  searchTerm = ""
 }) {
-  const [videos, setVideos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedVideo, setSelectedVideo] = useState(null); 
+  const [selectedVideo, setSelectedVideo] = useState(null);
 
-  useEffect(() => {
-    if (externalSelectedVideo) {
-      setSelectedVideo(externalSelectedVideo);
-    }
-  }, [externalSelectedVideo]);
-
-  useEffect(() => {
-    async function fetchVideos() {
-      const { data, error } = await supabase.from('procedures').select('*').not('video_url', 'is', null);
-      if (!error) setVideos(data);
-      setLoading(false);
-    }
-    fetchVideos();
-  }, []);
+  const displayedVideo = selectedVideo || externalSelectedVideo;
 
   const handleClose = () => {
     setSelectedVideo(null);
     if (setExternalSelectedVideo) setExternalSelectedVideo(null);
   };
 
-  const filteredVideos = videos.filter((vid) => {
-    const term = searchTerm.toLowerCase();
-    return (
-      (vid.title && vid.title.toLowerCase().includes(term)) || 
-      (vid.region && vid.region.toLowerCase().includes(term)) ||
-      (vid.category && vid.category.toLowerCase().includes(term))
-    );
-  });
+  const videos = useMemo(
+    () => procedures.filter((proc) => proc.video_url),
+    [procedures]
+  );
+
+  const filteredVideos = useMemo(
+    () => filterBySearch(videos, searchTerm, VIDEO_SEARCH_FIELDS),
+    [videos, searchTerm]
+  );
 
   return (
     <div>
       <div className="section-title">Video Guías Clínicas</div>
-      <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginBottom: '24px' }}>
+      <p className="section-subtitle">
         Demostraciones prácticas y consignas de ejecución para procedimientos técnicos.
       </p>
 
       {loading ? (
-        <p style={{ color: 'var(--color-text-secondary)' }}>Cargando galería...</p>
+        <p className="loading-text">Cargando galería...</p>
+      ) : error ? (
+        <p className="error-state">No se pudo cargar la galería. Intentá de nuevo más tarde.</p>
       ) : (
         <div className="card-grid">
           {filteredVideos.length > 0 ? (
             filteredVideos.map((vid) => (
-              <div key={vid.id} className="proc-card" onClick={() => setSelectedVideo(vid)} style={{ padding: '0', overflow: 'hidden' }}>
-                
-                <div style={{ height: '140px', background: '#101828', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div key={vid.id} className="proc-card video-card" onClick={() => setSelectedVideo(vid)}>
+
+                <div className="video-thumb">
                   <IconPlayerPlayFilled size={40} color="rgba(255,255,255,0.8)" />
-                  <span style={{ position: 'absolute', bottom: '8px', right: '8px', background: 'rgba(0,0,0,0.7)', color: 'white', fontSize: '11px', padding: '2px 6px', borderRadius: '4px' }}>
+                  <span className="video-duration-badge">
                     {vid.video_duration}
                   </span>
                 </div>
-                
-                <div style={{ padding: '16px' }}>
-                  <div className="proc-name" style={{ fontSize: '14px', marginBottom: '4px' }}>{vid.title}</div>
+
+                <div className="video-card-body">
+                  <div className="proc-name">{vid.title}</div>
                   <span className="tag tag-blue">{vid.category}</span>
                 </div>
               </div>
             ))
           ) : (
-            <p style={{ color: 'var(--color-text-secondary)', gridColumn: '1 / -1' }}>No se encontraron videos con esos filtros.</p>
+            <p className="empty-state">No se encontraron videos con esos filtros.</p>
           )}
         </div>
       )}
 
-      {selectedVideo && (
+      {displayedVideo && (
         <div className="modal-overlay" onClick={handleClose}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ backgroundColor: '#ffffff', maxWidth: '800px', padding: '0', overflow: 'hidden' }}>
-            
-            <button className="modal-close" onClick={handleClose} style={{ zIndex: 10, background: 'white', borderRadius: '50%' }}>
+          <div className="modal-content modal-content--flush" onClick={(e) => e.stopPropagation()}>
+
+            <button className="modal-close modal-close--floating" onClick={handleClose}>
               <IconX size={24} />
             </button>
 
-            <div style={{ width: '100%', height: '400px', background: 'black' }}>
-              <iframe 
-                width="100%" 
-                height="100%" 
-                src={selectedVideo.video_url} 
-                title={selectedVideo.title}
-                frameBorder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            <div className="video-frame">
+              <iframe
+                width="100%"
+                height="100%"
+                src={displayedVideo.video_url}
+                title={displayedVideo.title}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               ></iframe>
             </div>
 
-            <div style={{ padding: '24px' }}>
-              <div className="section-title" style={{ marginTop: '0', fontSize: '20px' }}>
-                {selectedVideo.title}
+            <div className="video-info-panel">
+              <div className="section-title modal-title modal-title--lg">
+                {displayedVideo.title}
               </div>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '20px' }}>
-                <div className="detail-card" style={{ background: '#F8F9FA' }}>
-                  <div className="detail-card-title" style={{ color: '#185FA5' }}>
-                    <IconVolume size={18} style={{ marginRight: '6px' }}/> Consignas verbales
+
+              <div className="video-info-grid">
+                <div className="detail-card">
+                  <div className="detail-card-title detail-card-title--accent">
+                    <IconVolume size={18} /> Consignas verbales
                   </div>
-                  <p style={{ fontSize: '13px', color: '#475467', lineHeight: '1.6' }}>{selectedVideo.verbal_cues}</p>
+                  <p className="card-text">{displayedVideo.verbal_cues}</p>
                 </div>
 
-                <div className="detail-card" style={{ background: '#FEF3F2' }}>
-                  <div className="detail-card-title" style={{ color: '#D92D20' }}>
-                    <IconAlertTriangle size={18} style={{ marginRight: '6px' }}/> Errores comunes
+                <div className="detail-card detail-card--danger">
+                  <div className="detail-card-title detail-card-title--danger">
+                    <IconAlertTriangle size={18} /> Errores comunes
                   </div>
-                  <p style={{ fontSize: '13px', color: '#475467', lineHeight: '1.6' }}>{selectedVideo.common_errors}</p>
+                  <p className="card-text">{displayedVideo.common_errors}</p>
                 </div>
               </div>
             </div>

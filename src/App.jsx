@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { supabase } from "./services/supabase";
+import { useMemo, useState } from "react";
+import { useSupabaseTable } from "./hooks/useSupabaseTable";
+import { filterBySearch } from "./lib/search";
 import MainLayout from "./components/layout/MainLayout";
 import ProcedureCard from "./components/procedures/ProcedureCard";
 import DetailPanel from "./components/procedures/DetailPanel";
@@ -7,9 +8,15 @@ import AnatomyViewer from "./components/procedures/AnatomyViewer";
 import ProtocolsView from "./components/protocols/ProtocolsView";
 import VideoGuidesView from "./components/videos/VideoGuidesView";
 
+const PROCEDURE_SEARCH_FIELDS = ["title", "region", "category"];
+
 function App() {
-  const [procedures, setProcedures] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: procedures, loading, error } = useSupabaseTable("procedures");
+  const {
+    data: protocols,
+    loading: protocolsLoading,
+    error: protocolsError,
+  } = useSupabaseTable("protocols");
   const [selectedProcedure, setSelectedProcedure] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -17,30 +24,14 @@ function App() {
   const [activeView, setActiveView] = useState("procedures");
   const [crossLinkedVideo, setCrossLinkedVideo] = useState(null);
 
-  useEffect(() => {
-    async function fetchProcedures() {
-      const { data, error } = await supabase.from("procedures").select("*");
-      if (!error) {
-        setProcedures(data);
-      }
-      setLoading(false);
-    }
-    fetchProcedures();
-  }, []);
-
   const handleCardClick = (procedure) => {
     setSelectedProcedure(procedure);
   };
 
-  const filteredProcedures = procedures.filter((proc) => {
-    const term = searchTerm.toLowerCase();
-
-    return (
-      (proc.title && proc.title.toLowerCase().includes(term)) ||
-      (proc.region && proc.region.toLowerCase().includes(term)) ||
-      (proc.category && proc.category.toLowerCase().includes(term))
-    );
-  });
+  const filteredProcedures = useMemo(
+    () => filterBySearch(procedures, searchTerm, PROCEDURE_SEARCH_FIELDS),
+    [procedures, searchTerm]
+  );
 
   const handleGoToVideo = (procedure) => {
     setSelectedProcedure(null); 
@@ -59,8 +50,10 @@ function App() {
         <>
           <div className="section-title">Biblioteca de Procedimientos</div>
           {loading ? (
-            <p style={{ color: "var(--color-text-secondary)" }}>
-              Cargando base clínica...
+            <p className="loading-text">Cargando base clínica...</p>
+          ) : error ? (
+            <p className="error-state">
+              No se pudo cargar la base clínica. Intentá de nuevo más tarde.
             </p>
           ) : (
             <div className="card-grid">
@@ -73,12 +66,7 @@ function App() {
                   />
                 ))
               ) : (
-                <p
-                  style={{
-                    color: "var(--color-text-secondary)",
-                    gridColumn: "1 / -1",
-                  }}
-                >
+                <p className="empty-state">
                   No se encontraron procedimientos con esos parámetros.
                 </p>
               )}
@@ -95,13 +83,7 @@ function App() {
       {activeView === "anatomy" && (
         <>
           <div className="section-title">Visor Anatómico Interactivo</div>
-          <p
-            style={{
-              fontSize: "13px",
-              color: "var(--color-text-secondary)",
-              marginBottom: "16px",
-            }}
-          >
+          <p className="section-subtitle section-subtitle--tight">
             Interactúa con el modelo usando el mouse o gestos táctiles para
             rotar y hacer zoom.
           </p>
@@ -110,14 +92,22 @@ function App() {
       )}
 
       {activeView === "protocols" && (
-        <ProtocolsView searchTerm={searchTerm} />
+        <ProtocolsView
+          protocols={protocols}
+          loading={protocolsLoading}
+          error={protocolsError}
+          searchTerm={searchTerm}
+        />
       )}
-      
+
       {activeView === "videos" && (
         <VideoGuidesView
+          procedures={procedures}
+          loading={loading}
+          error={error}
           externalSelectedVideo={crossLinkedVideo}
           setExternalSelectedVideo={setCrossLinkedVideo}
-          searchTerm={searchTerm} 
+          searchTerm={searchTerm}
         />
       )}
     </MainLayout>

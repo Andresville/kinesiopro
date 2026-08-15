@@ -13,9 +13,8 @@ export default function DetailPanel({ procedure, onClose, onGoToVideo }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
-        className="modal-content"
+        className="modal-content modal-content--muted"
         onClick={(e) => e.stopPropagation()}
-        style={{ backgroundColor: "#e0e2dd" }}
       >
         <button
           className="modal-close"
@@ -25,14 +24,11 @@ export default function DetailPanel({ procedure, onClose, onGoToVideo }) {
           <IconX size={24} />
         </button>
 
-        <div
-          className="section-title"
-          style={{ marginTop: "0", fontSize: "18px", marginBottom: "16px" }}
-        >
+        <div className="section-title modal-title">
           DETALLE DEL PROCEDIMIENTO: {procedure.title.toUpperCase()}
         </div>
 
-        <div className="detail-panel" style={{ marginTop: "24px" }}>
+        <div className="detail-panel">
 
           <div className="detail-card">
             <div className="detail-card-title">
@@ -40,7 +36,7 @@ export default function DetailPanel({ procedure, onClose, onGoToVideo }) {
               Pasos del protocolo
             </div>
             <ul className="step-list">
-              {procedure.steps.map((step, index) => (
+              {(procedure.steps ?? []).map((step, index) => (
                 <li key={index}>
                   <span className="step-num">{index + 1}</span>
                   {step}
@@ -49,23 +45,16 @@ export default function DetailPanel({ procedure, onClose, onGoToVideo }) {
             </ul>
           </div>
 
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "16px" }}
-          >
-            <div
-              className="detail-card"
-              style={{ borderColor: "#FECDCA", background: "#FEF3F2" }}
-            >
-              <div className="detail-card-title" style={{ color: "#B42318" }}>
+          <div className="stack">
+            <div className="detail-card detail-card--danger">
+              <div className="detail-card-title detail-card-title--danger">
                 <IconAlertTriangle color="#B42318" size={20} />
                 Contraindicaciones
               </div>
               <ul className="contra-list">
-                {procedure.contraindications.map((item, index) => (
+                {(procedure.contraindications ?? []).map((item, index) => (
                   <li key={index}>
-                    <span style={{ fontSize: "18px", lineHeight: "0.8" }}>
-                      •
-                    </span>
+                    <span className="contra-bullet">•</span>
                     {item}
                   </li>
                 ))}
@@ -77,13 +66,7 @@ export default function DetailPanel({ procedure, onClose, onGoToVideo }) {
                 <IconBook color="#475467" size={20} />
                 Bibliografía de respaldo
               </div>
-              <p
-                style={{
-                  fontSize: "13px",
-                  color: "var(--color-text-secondary)",
-                  margin: "8px 0",
-                }}
-              >
+              <p className="evidence-text">
                 Nivel de evidencia clínica:{" "}
                 <strong>{procedure.evidence_level}</strong>
               </p>
@@ -96,26 +79,15 @@ export default function DetailPanel({ procedure, onClose, onGoToVideo }) {
                 <IconExternalLink size={16} />
                 Consultar fuente original
               </a>
-              <button
-                onClick={() => onGoToVideo(procedure)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  background: "#185FA5",
-                  color: "white",
-                  border: "none",
-                  padding: "8px 10px",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                  marginBottom: "24px",
-                  marginTop: "10px",
-                }}
-              >
-                <IconPlayerPlayFilled size={18} />
-                Ver video explicativo
-              </button>
+              {procedure.video_url && (
+                <button
+                  onClick={() => onGoToVideo(procedure)}
+                  className="btn-primary"
+                >
+                  <IconPlayerPlayFilled size={18} />
+                  Ver video explicativo
+                </button>
+              )}
             </div>
           </div>
         </div>

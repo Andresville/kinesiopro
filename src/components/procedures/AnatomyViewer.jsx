@@ -10,67 +10,38 @@ function Model({ path }) {
 function Loader() {
   return (
     <Html center>
-      <div style={{ 
-        color: '#85B7EB', 
-        fontWeight: 'bold', 
-        whiteSpace: 'nowrap', 
-        background: 'rgba(16, 24, 40, 0.8)', 
-        padding: '12px 24px', 
-        borderRadius: '8px',
-        border: '1px solid #185FA5'
-      }}>
-        Cargando modelo...
-      </div>
+      <div className="viewer-loader">Cargando modelo...</div>
     </Html>
   );
 }
 
+const MODELS = [
+  { id: 'anatomy', name: 'Cuerpo Completo (Masc)', path: '/anatomy.glb' },
+  { id: 'muscles', name: 'Cuerpo Completo (Fem)', path: '/muscles.glb' },
+  { id: 'hand', name: 'Anatomía de Brazo/Mano', path: '/hand_anatomy.glb' },
+  { id: 'legs', name: 'Variaciones Musculares (Piernas)', path: '/legs_muscles.glb' }
+];
+
 export default function AnatomyViewer() {
 
-  const [currentModel, setCurrentModel] = useState('/anatomy.glb');
-
-  const models = [
-    { id: 'anatomy', name: 'Cuerpo Completo (Masc)', path: '/anatomy.glb' },
-    { id: 'muscles', name: 'Cuerpo Completo (Fem)', path: '/muscles.glb' },
-    { id: 'hand', name: 'Anatomía de Brazo/Mano', path: '/hand_anatomy.glb' },
-    { id: 'legs', name: 'Variaciones Musculares (Piernas)', path: '/legs_muscles.glb' }
-  ];
+  const [currentModel, setCurrentModel] = useState(MODELS[0].path);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      
-      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-        {models.map((model) => (
+    <div className="stack">
+
+      <div className="viewer-toolbar">
+        {MODELS.map((model) => (
           <button
             key={model.id}
             onClick={() => setCurrentModel(model.path)}
-            style={{
-              padding: '8px 16px',
-              background: currentModel === model.path ? '#185FA5' : '#eaecf0',
-              color: currentModel === model.path ? 'white' : '#475467',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontWeight: '600',
-              fontSize: '13px',
-              transition: 'all 0.2s ease',
-              boxShadow: currentModel === model.path ? '0 2px 4px rgba(24, 95, 165, 0.3)' : 'none'
-            }}
+            className={`model-btn ${currentModel === model.path ? 'active' : ''}`}
           >
             {model.name}
           </button>
         ))}
       </div>
 
-      <div style={{ 
-        width: '100%', 
-        height: '65vh', 
-        minHeight: '450px', 
-        borderRadius: 'var(--border-radius-lg)', 
-        overflow: 'hidden', 
-        border: '1px solid var(--color-border-tertiary)', 
-        background: '#101828' 
-      }}>
+      <div className="viewer-canvas-wrap">
         <Canvas camera={{ position: [0, 1, 4], fov: 50 }}>
           
           <ambientLight intensity={0.6} />
