@@ -7,6 +7,7 @@ import DetailPanel from "./components/procedures/DetailPanel";
 import AnatomyViewer from "./components/procedures/AnatomyViewer";
 import ProtocolsView from "./components/protocols/ProtocolsView";
 import VideoGuidesView from "./components/videos/VideoGuidesView";
+import BibliographyView from "./components/bibliography/BibliographyView";
 
 const PROCEDURE_SEARCH_FIELDS = ["title", "region", "category"];
 
@@ -17,6 +18,12 @@ function App() {
     loading: protocolsLoading,
     error: protocolsError,
   } = useSupabaseTable("protocols");
+  const {
+    data: bibliographyTopics,
+    loading: bibliographyLoading,
+    error: bibliographyError,
+  } = useSupabaseTable("bibliography_topics");
+  const { data: anatomyStructures } = useSupabaseTable("anatomy_structures");
   const [selectedProcedure, setSelectedProcedure] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -84,10 +91,10 @@ function App() {
         <>
           <div className="section-title">Visor Anatómico Interactivo</div>
           <p className="section-subtitle section-subtitle--tight">
-            Interactúa con el modelo usando el mouse o gestos táctiles para
-            rotar y hacer zoom.
+            Rotá y hacé zoom con el mouse o gestos táctiles. Hacé clic sobre
+            un músculo o hueso para ver su nombre y descripción.
           </p>
-          <AnatomyViewer />
+          <AnatomyViewer structures={anatomyStructures} />
         </>
       )}
 
@@ -107,6 +114,15 @@ function App() {
           error={error}
           externalSelectedVideo={crossLinkedVideo}
           setExternalSelectedVideo={setCrossLinkedVideo}
+          searchTerm={searchTerm}
+        />
+      )}
+
+      {activeView === "bibliography" && (
+        <BibliographyView
+          topics={bibliographyTopics}
+          loading={bibliographyLoading}
+          error={bibliographyError}
           searchTerm={searchTerm}
         />
       )}

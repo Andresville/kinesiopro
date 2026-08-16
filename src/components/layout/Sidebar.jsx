@@ -51,12 +51,17 @@ export default function Sidebar({ activeView, setActiveView }) {
         <IconVideo size={20} /> Video guías
       </div>
 
+      {/* Botón Bibliografía */}
+      <div
+        className={`nav-item ${activeView === "bibliography" ? "active" : ""}`}
+        onClick={() => setActiveView("bibliography")}
+      >
+        <IconBook size={20} /> Bibliografía
+      </div>
+
       {/* Los siguientes módulos los dejamos inactivos por ahora */}
       <div className="nav-item disabled" aria-disabled="true">
         <IconUsers size={20} /> Pacientes
-      </div>
-      <div className="nav-item disabled" aria-disabled="true">
-        <IconBook size={20} /> Bibliografía
       </div>
       <div className="nav-item disabled" aria-disabled="true">
         <IconSettings size={20} /> Configuración
