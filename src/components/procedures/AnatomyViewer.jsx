@@ -7,6 +7,15 @@ import { IconX } from '@tabler/icons-react';
 const HIGHLIGHT_COLOR = '#facc15';
 const MODEL_PATH = '/upper-limb-anatomy.glb';
 
+const TYPE_TAG_CLASS = {
+  Hueso: 'tag-blue',
+  Musculo: 'tag-teal',
+  Ligamento: 'tag-purple',
+  Nervio: 'tag-amber',
+  Vaso: 'tag-amber',
+  Cartilago: 'tag-purple',
+};
+
 // El modelo agrupa sus mallas en nodos padre "<Región> - <sistema>" (ej.
 // "Arm - muscles", "Forearm - bones"). Cada sistema se repite en las 7
 // regiones cubiertas (Arm, Forearm, Hand and wrist, Pectoral girdle, Back,
@@ -14,8 +23,8 @@ const MODEL_PATH = '/upper-limb-anatomy.glb';
 // aplicado a todas las regiones a la vez.
 const LAYERS = [
   { key: 'bones', label: 'Huesos', suffix: '_-_bones', defaultOn: true },
-  { key: 'muscles', label: 'Músculos', suffix: '_-_muscles', defaultOn: true },
-  { key: 'joints', label: 'Articulaciones', suffix: '_-_capsules,_ligaments,_fasciae', defaultOn: true },
+  { key: 'muscles', label: 'Músculos', suffix: '_-_muscles', defaultOn: false },
+  { key: 'joints', label: 'Articulaciones', suffix: '_-_capsules,_ligaments,_fasciae', defaultOn: false },
   { key: 'nerves', label: 'Nervios', suffix: '_-_nerves', defaultOn: false },
   { key: 'arteries', label: 'Arterias', suffix: '_-_arteries', defaultOn: false },
   { key: 'veins', label: 'Venas', suffix: '_-_veins', defaultOn: false },
@@ -230,13 +239,25 @@ export default function AnatomyViewer({ structures = [] }) {
 
             {selectedStructure ? (
               <>
-                <span className={`tag ${selectedStructure.type === 'Hueso' ? 'tag-blue' : 'tag-teal'}`}>
+                <span className={`tag ${TYPE_TAG_CLASS[selectedStructure.type] ?? 'tag-teal'}`}>
                   {selectedStructure.type}
                 </span>
                 <div className="proc-name" style={{ marginTop: '8px' }}>
                   {selectedStructure.display_name}
                 </div>
                 <p className="card-text">{selectedStructure.description}</p>
+                {selectedStructure.clinical_relevance?.length > 0 && (
+                  <>
+                    <div className="detail-card-title detail-card-title--danger" style={{ marginTop: '12px', fontSize: '13px' }}>
+                      Relevancia clínica
+                    </div>
+                    <ul className="step-list">
+                      {selectedStructure.clinical_relevance.map((item, index) => (
+                        <li key={index}>{item}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
                 {selectedStructure.sources?.length > 0 && (
                   <ul className="source-list">
                     {selectedStructure.sources.map((source, index) => (

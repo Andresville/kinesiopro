@@ -5,6 +5,7 @@ import {
   IconStretching,
   IconActivity,
   IconBolt,
+  IconDroplet,
   IconArrowsMaximize,
   IconAlertTriangle,
   IconBooks,
@@ -19,6 +20,7 @@ const SECTIONS = [
   { key: 'ligaments', title: 'Ligamentos', icon: IconStretching, accent: true },
   { key: 'muscles', title: 'Músculos', icon: IconActivity, accent: true },
   { key: 'nerves', title: 'Nervios', icon: IconBolt, accent: true },
+  { key: 'vessels', title: 'Vasos sanguíneos', icon: IconDroplet, accent: true },
   { key: 'movements', title: 'Rango de movimiento', icon: IconArrowsMaximize, accent: true },
   { key: 'clinical_relevance', title: 'Relevancia clínica', icon: IconAlertTriangle, danger: true },
 ];
