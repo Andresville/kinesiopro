@@ -7,7 +7,27 @@ import { IconX } from '@tabler/icons-react';
 const HIGHLIGHT_COLOR = '#facc15';
 const MODEL_PATH = '/upper-limb-anatomy.glb';
 
-function InteractiveModel({ selectedMeshName, onSelect }) {
+// El modelo agrupa sus mallas en nodos padre "<Región> - <sistema>" (ej.
+// "Arm - muscles", "Forearm - bones"). Cada sistema se repite en las 7
+// regiones cubiertas (Arm, Forearm, Hand and wrist, Pectoral girdle, Back,
+// Thorax, Head and neck). Se arma un toggle de visibilidad por sistema,
+// aplicado a todas las regiones a la vez.
+const LAYERS = [
+  { key: 'bones', label: 'Huesos', suffix: '_-_bones', defaultOn: true },
+  { key: 'muscles', label: 'Músculos', suffix: '_-_muscles', defaultOn: true },
+  { key: 'joints', label: 'Articulaciones', suffix: '_-_capsules,_ligaments,_fasciae', defaultOn: true },
+  { key: 'nerves', label: 'Nervios', suffix: '_-_nerves', defaultOn: false },
+  { key: 'arteries', label: 'Arterias', suffix: '_-_arteries', defaultOn: false },
+  { key: 'veins', label: 'Venas', suffix: '_-_veins', defaultOn: false },
+  { key: 'cartilages', label: 'Cartílagos', suffix: '_-_cartilages', defaultOn: false },
+  { key: 'synovia', label: 'Bursas y sinovial', suffix: '_-_synovia,_bursae', defaultOn: false },
+];
+
+const DEFAULT_VISIBLE_LAYERS = new Set(
+  LAYERS.filter((layer) => layer.defaultOn).map((layer) => layer.key)
+);
+
+function InteractiveModel({ selectedMeshName, onSelect, visibleLayers }) {
   const { scene } = useGLTF(MODEL_PATH);
   const outlineRef = useRef(null);
 
@@ -27,6 +47,26 @@ function InteractiveModel({ selectedMeshName, onSelect }) {
       }
     });
   }, [scene]);
+
+  // Agrupa los nodos padre de cada región por sistema (huesos, músculos,
+  // etc.) una sola vez, para poder togglear su visibilidad después.
+  const groupNodesByLayer = useMemo(() => {
+    const map = new Map(LAYERS.map((layer) => [layer.key, []]));
+    scene.traverse((obj) => {
+      const layer = LAYERS.find((l) => obj.name.endsWith(l.suffix));
+      if (layer) map.get(layer.key).push(obj);
+    });
+    return map;
+  }, [scene]);
+
+  useEffect(() => {
+    groupNodesByLayer.forEach((nodes, key) => {
+      const visible = visibleLayers.has(key);
+      nodes.forEach((node) => {
+        node.visible = visible;
+      });
+    });
+  }, [groupNodesByLayer, visibleLayers]);
 
   // Resalta la malla seleccionada dibujando un contorno (EdgesGeometry) por
   // encima, sin tocar el material original.
@@ -61,10 +101,27 @@ function InteractiveModel({ selectedMeshName, onSelect }) {
     };
   }, [scene, selectedMeshName]);
 
+  // El raycaster de three.js no respeta `.visible`: una malla oculta por un
+  // toggle de capa sigue siendo detectable si está más cerca de la cámara
+  // que la malla visible debajo. Se recorre event.intersections (todos los
+  // impactos del rayo, ordenados por distancia) y se toma el primero que
+  // esté realmente visible, subiendo por toda la cadena de padres.
+  const isEffectivelyVisible = (object) => {
+    let node = object;
+    while (node) {
+      if (!node.visible) return false;
+      node = node.parent;
+    }
+    return true;
+  };
+
   const handleClick = (event) => {
-    if (!event.object.isMesh) return;
     event.stopPropagation();
-    onSelect(event.object.name);
+    const hit = event.intersections.find(
+      (intersection) => intersection.object.isMesh && isEffectivelyVisible(intersection.object)
+    );
+    if (!hit) return;
+    onSelect(hit.object.name);
   };
 
   return <primitive object={scene} scale={2.8} onClick={handleClick} />;
@@ -99,6 +156,7 @@ function prettifyMeshName(name) {
 
 export default function AnatomyViewer({ structures = [] }) {
   const [selectedMeshName, setSelectedMeshName] = useState(null);
+  const [visibleLayers, setVisibleLayers] = useState(DEFAULT_VISIBLE_LAYERS);
 
   const structureByMeshName = useMemo(() => {
     const map = new Map();
@@ -112,8 +170,32 @@ export default function AnatomyViewer({ structures = [] }) {
 
   const selectedStructure = selectedMeshName ? structureByMeshName.get(selectedMeshName) : null;
 
+  const toggleLayer = (key) => {
+    setVisibleLayers((current) => {
+      const next = new Set(current);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+  };
+
   return (
     <div className="stack">
+
+      <div className="viewer-toolbar">
+        {LAYERS.map((layer) => (
+          <button
+            key={layer.key}
+            onClick={() => toggleLayer(layer.key)}
+            className={`layer-toggle ${visibleLayers.has(layer.key) ? 'active' : ''}`}
+          >
+            {layer.label}
+          </button>
+        ))}
+      </div>
 
       <div className="viewer-canvas-wrap">
         <Canvas camera={{ position: [0, 1, 4], fov: 50 }}>
@@ -129,6 +211,7 @@ export default function AnatomyViewer({ structures = [] }) {
               <InteractiveModel
                 selectedMeshName={selectedMeshName}
                 onSelect={setSelectedMeshName}
+                visibleLayers={visibleLayers}
               />
             </Center>
           </Suspense>
